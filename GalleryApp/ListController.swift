@@ -128,6 +128,7 @@ class ListController: UITableViewController {
             let imgData = try Data(contentsOf: imgURL!)
             
             cell.imageView!.image = UIImage(data: imgData)
+            
         }catch{
             
         }
