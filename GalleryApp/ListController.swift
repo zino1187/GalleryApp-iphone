@@ -29,7 +29,10 @@ class GalleryList:Decodable{
 }
 
 class ListController: UITableViewController {
-
+    
+    var galleryArray:Array<Gallery>=Array<Gallery>()
+    
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -42,6 +45,7 @@ class ListController: UITableViewController {
         
         //원격지의 URL을 통해 json 데이터 가져오기 !!
         loadData()
+        
     }
     
     func loadData(){
@@ -71,12 +75,24 @@ class ListController: UITableViewController {
             do{
                 var obj = try decorder.decode(GalleryList.self, from: data!)
                 
-                print("담겨진 객체수는 ", obj.list.count)
+                //print("담겨진 객체수는 ", obj.list.count)
+                
+                //객체들을 하나씩 꺼내서 배열에 담아놓자!!
+                for gallery in obj.list{
+                    self.galleryArray.append(gallery)
+                }
+                
+                print(self.galleryArray[0].title)
+                
+                //UI변경은 메인실행부에게 맡기자!!
+                //서브 실행부가 디자인을 제어할수 없다
+                //오직 메인 실행부에게만 주어진 역할이다!!
+                DispatchQueue.main.async {
+                    self.tableView.reloadData()
+                }
             }catch{
                 print(error)
             }
-            
-            
         })
         
         task.resume()
@@ -88,23 +104,36 @@ class ListController: UITableViewController {
 
     override func numberOfSections(in tableView: UITableView) -> Int {
         // #warning Incomplete implementation, return the number of sections
-        return 0
+        return 1
     }
 
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         // #warning Incomplete implementation, return the number of rows
-        return 0
+        return galleryArray.count
     }
 
-    /*
+    
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "reuseIdentifier", for: indexPath)
+        let cell = tableView.dequeueReusableCell(withIdentifier: "myCell", for: indexPath)
 
         // Configure the cell...
-
+        var gallery = galleryArray[indexPath.row]
+        
+        print("cecll called")
+        cell.textLabel!.text = gallery.title
+        
+        //셀에 이미지 추가하기!!!
+        var imgURL = URL(string: "http://localhost:8888/data/"+gallery.filename)
+        do{
+            let imgData = try Data(contentsOf: imgURL!)
+            
+            cell.imageView!.image = UIImage(data: imgData)
+        }catch{
+            
+        }
         return cell
     }
-    */
+    
 
     /*
     // Override to support conditional editing of the table view.
